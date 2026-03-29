@@ -825,8 +825,20 @@ window.addToQuote = function(code) {
   const it = APP.catalog.find(c => c.code === code);
   if (!it) return;
   const ex = APP.quote.find(q => q.code === code);
-  if (ex) { ex.qty++; }
-  else { APP.quote.push({ code: it.code, desc: it.desc || '', price: it.price || 0, qty: 1 }); }
+  if (ex) {
+    ex.qty++;
+    if (!ex.image && it.image) ex.image = it.image;
+  } else {
+    APP.quote.push({
+      code: it.code,
+      desc: it.desc || '',
+      price: it.price || 0,
+      qty: 1,
+      image: it.image || null,
+      source: it.source || '',
+      page: it.page || null
+    });
+  }
   $('quote-drawer').removeAttribute('hidden');
   renderQuote();
   updateQuoteBadge();
@@ -838,14 +850,35 @@ function renderQuote() {
   if (!APP.quote.length) {
     wrap.innerHTML = '<p class="drawer-empty">Aggiungi articoli dal catalogo</p>';
   } else {
-    wrap.innerHTML = APP.quote.map((it, i) => `
+    wrap.innerHTML = APP.quote.map((it, i) => {
+      const media = it.image
+        ? `<img class="qi-thumb" src="${it.image}" alt="${esc(it.code)}" loading="lazy">`
+        : `<div class="qi-thumb qi-thumb-placeholder" aria-hidden="true">
+             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+               <rect x="3" y="3" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.2"/>
+               <path d="M6 14L9 11L12 13L16 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+             </svg>
+           </div>`;
+      const meta = [];
+      if (it.source) meta.push(esc(shortName(it.source)));
+      if (it.page) meta.push(`pag. ${it.page}`);
+      return `
       <div class="quote-item">
-        <span class="qi-code">${esc(it.code)}</span>
-        <span class="qi-desc">${esc(it.desc)}</span>
-        <span class="qi-qty"><input type="number" min="1" step="1" value="${it.qty}" onchange="updateQty(${i},this.value)"></span>
-        <span class="qi-price">€ ${(it.price * it.qty).toFixed(2).replace('.', ',')}</span>
-        <button class="qi-del" onclick="delQuoteItem(${i})">×</button>
-      </div>`).join('');
+        ${media}
+        <div class="qi-main">
+          <div class="qi-topline">
+            <span class="qi-code">${esc(it.code)}</span>
+            <span class="qi-price">€ ${(it.price * it.qty).toFixed(2).replace('.', ',')}</span>
+          </div>
+          <div class="qi-desc">${esc(it.desc) || '—'}</div>
+          <div class="qi-bottomline">
+            <span class="qi-meta">${meta.join(' · ')}</span>
+            <span class="qi-qty"><input type="number" min="1" step="1" value="${it.qty}" onchange="updateQty(${i},this.value)"></span>
+            <button class="qi-del" onclick="delQuoteItem(${i})" aria-label="Rimuovi articolo">×</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
   }
   calcTotals();
 }
@@ -883,11 +916,11 @@ $('export-quote-csv').addEventListener('click', () => {
   const client = $('quote-client').value || 'Cliente';
   const ref    = $('quote-ref').value    || new Date().toLocaleDateString('it-IT');
   const rows = [
-    ['Codice','Descrizione','Prezzo Unit.','Qta','Totale'],
-    ...APP.quote.map(it => [it.code, it.desc, it.price.toFixed(2), it.qty, (it.price*it.qty).toFixed(2)]),
-    ['','','','Imponibile', sub.toFixed(2)],
-    ['','','','IVA 22%',    iva.toFixed(2)],
-    ['','','','TOTALE',     (sub+iva).toFixed(2)]
+    ['Codice','Descrizione','Fonte','Pagina','Prezzo Unit.','Qta','Totale'],
+    ...APP.quote.map(it => [it.code, it.desc, it.source || '', it.page || '', it.price.toFixed(2), it.qty, (it.price*it.qty).toFixed(2)]),
+    ['','','','','Imponibile','', sub.toFixed(2)],
+    ['','','','','IVA 22%','',    iva.toFixed(2)],
+    ['','','','','TOTALE','',     (sub+iva).toFixed(2)]
   ];
   download(rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'),
     `preventivo_${client}_${ref}.csv`, 'text/csv');
@@ -937,5 +970,5 @@ function toast(msg, type = 'info') {
 
 // ─── Service Worker ───────────────────────────────────────────────────────
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js?v=3').catch(() => {});
 }

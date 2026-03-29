@@ -535,24 +535,61 @@ table.issues-tbl tbody tr:hover td { background: rgba(255,255,255,0.02); }
 .drawer-empty { font-size: 13px; color: var(--text3); text-align: center; padding: 24px; }
 
 .quote-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 9px 0; border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
 }
 .quote-item:last-child { border-bottom: none; }
-.qi-code  { font-family: var(--mono); font-size: 11px; color: var(--accent); width: 80px; flex-shrink: 0; }
-.qi-desc  { flex: 1; font-size: 12px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qi-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.qi-thumb-placeholder {
+  color: var(--text3);
+}
+.qi-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.qi-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.qi-code  { font-family: var(--mono); font-size: 11px; color: var(--accent); flex-shrink: 0; }
+.qi-desc  { font-size: 12px; color: var(--text); line-height: 1.4; }
+.qi-meta { font-size: 11px; color: var(--text3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qi-bottomline {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+}
 .qi-qty input {
-  width: 46px; background: var(--surface2);
-  border: 1px solid var(--border); border-radius: 4px;
+  width: 52px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 8px;
   color: var(--text); font-family: var(--mono); font-size: 12px;
-  padding: 4px 6px; text-align: center;
+  padding: 6px 8px; text-align: center;
 }
 .qi-qty input:focus { outline: none; border-color: var(--accent); }
-.qi-price { font-family: var(--mono); font-size: 13px; font-weight: 600; width: 72px; text-align: right; color: var(--text); }
+.qi-price { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); text-align: right; }
 .qi-del {
   background: none; border: none;
   color: var(--text3); font-size: 16px;
-  padding: 2px 4px; transition: color 0.14s;
+  padding: 2px 6px; transition: color 0.14s;
 }
 .qi-del:hover { color: var(--danger); }
 
@@ -637,4 +674,20 @@ table.issues-tbl tbody tr:hover td { background: rgba(255,255,255,0.02); }
   .cards-grid{grid-template-columns:1fr;}
   .drop-zone{padding:26px 18px;}
   .view-header h1{font-size:20px;}
+}
+
+
+@media (max-width: 640px) {
+  .quote-drawer {
+    width: 100%;
+    top: 0;
+    z-index: 400;
+  }
+  .quote-item {
+    grid-template-columns: 60px 1fr;
+  }
+  .qi-thumb {
+    width: 60px;
+    height: 60px;
+  }
 }
