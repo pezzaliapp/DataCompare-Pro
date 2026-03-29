@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f1117">
+  <title>DataCompare Pro</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+  <div id="app">
+    <nav class="navbar">
+      <div class="nav-brand">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <rect width="12" height="12" rx="2" fill="#00d4aa"/>
+          <rect x="16" width="12" height="12" rx="2" fill="#00d4aa" opacity="0.5"/>
+          <rect y="16" width="12" height="12" rx="2" fill="#00d4aa" opacity="0.5"/>
+          <rect x="16" y="16" width="12" height="12" rx="2" fill="#00d4aa"/>
+        </svg>
+        <span class="brand-name">DataCompare <em>Pro</em></span>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-view="compare">Confronta File</button>
+        <button class="nav-tab" data-view="pdf">Analisi PDF</button>
+        <button class="nav-tab" data-view="catalog">Catalogo</button>
+      </div>
+      <div class="nav-status" id="status-bar">
+        <span class="status-dot"></span>
+        <span id="status-text">Pronto</span>
+      </div>
+    </nav>
+
+    <main id="main-content">
+      <!-- VIEW: COMPARE -->
+      <section id="view-compare" class="view active">
+        <div class="view-header">
+          <h1>Confronto File</h1>
+          <p class="subtitle">Carica file Excel, CSV o PDF per rilevare duplicati, conflitti di codice e anomalie di prezzo</p>
+        </div>
+
+        <div class="drop-zone-container">
+          <div class="drop-zone" id="drop-zone">
+            <div class="drop-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <path d="M24 4L36 14H28V28H20V14H12L24 4Z" fill="#00d4aa"/>
+                <rect x="6" y="34" width="36" height="4" rx="2" fill="#00d4aa" opacity="0.4"/>
+                <rect x="6" y="42" width="36" height="4" rx="2" fill="#00d4aa" opacity="0.2"/>
+              </svg>
+            </div>
+            <p class="drop-text">Trascina i file qui o <button class="link-btn" id="browse-btn">sfoglia</button></p>
+            <p class="drop-sub">Supporta: Excel (.xlsx, .xls), CSV, PDF — fino a 50MB per file</p>
+            <input type="file" id="file-input" multiple accept=".xlsx,.xls,.csv,.pdf" style="display:none">
+          </div>
+        </div>
+
+        <div id="file-list" class="file-list hidden"></div>
+
+        <div class="action-bar" id="action-bar" style="display:none">
+          <button class="btn-primary" id="run-compare">Avvia Analisi</button>
+          <button class="btn-ghost" id="clear-files">Rimuovi tutti</button>
+          <div class="compare-options">
+            <label class="toggle-option">
+              <input type="checkbox" id="opt-duplicates" checked> Duplicati codice
+            </label>
+            <label class="toggle-option">
+              <input type="checkbox" id="opt-price" checked> Prezzi difformi
+            </label>
+            <label class="toggle-option">
+              <input type="checkbox" id="opt-desc" checked> Descrizioni conflittuali
+            </label>
+            <label class="toggle-option">
+              <input type="checkbox" id="opt-missing"> Codici mancanti
+            </label>
+          </div>
+        </div>
+
+        <div id="results-section" class="results-section hidden">
+          <div class="results-header">
+            <h2>Risultati Analisi</h2>
+            <div class="results-actions">
+              <button class="btn-outline" id="export-csv-btn">Esporta CSV</button>
+              <button class="btn-outline" id="export-pdf-btn">Esporta Report</button>
+            </div>
+          </div>
+          <div class="stats-row" id="stats-row"></div>
+          <div class="issues-filters" id="issues-filters"></div>
+          <div id="issues-table-wrap"></div>
+        </div>
+      </section>
+
+      <!-- VIEW: PDF -->
+      <section id="view-pdf" class="view">
+        <div class="view-header">
+          <h1>Analisi PDF Listini</h1>
+          <p class="subtitle">Estrai codici articolo, descrizioni, immagini e prezzi da listini figurativi PDF</p>
+        </div>
+
+        <div class="pdf-workspace">
+          <div class="pdf-upload-panel">
+            <div class="panel-title">File PDF</div>
+            <div class="drop-zone small" id="pdf-drop-zone">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <rect x="4" y="2" width="18" height="24" rx="2" stroke="#00d4aa" stroke-width="1.5" fill="none"/>
+                <path d="M18 2L26 10" stroke="#00d4aa" stroke-width="1.5"/>
+                <rect x="18" y="2" width="8" height="8" rx="1" fill="#00d4aa" opacity="0.3"/>
+                <line x1="8" y1="14" x2="18" y2="14" stroke="#00d4aa" stroke-width="1.5" opacity="0.6"/>
+                <line x1="8" y1="18" x2="18" y2="18" stroke="#00d4aa" stroke-width="1.5" opacity="0.4"/>
+              </svg>
+              <p>Carica PDF listino</p>
+              <input type="file" id="pdf-file-input" accept=".pdf" style="display:none">
+            </div>
+            <div id="pdf-file-info" class="pdf-file-info hidden"></div>
+            <div class="extraction-config">
+              <div class="config-title">Configurazione Estrazione</div>
+              <div class="config-group">
+                <label>Pattern Codice Articolo</label>
+                <input type="text" id="code-pattern" placeholder="Es: [A-Z]{2,4}-\d{4,6}" value="[A-Z0-9]{3,}-[A-Z0-9]{2,}">
+                <span class="config-hint">Regex per identificare i codici</span>
+              </div>
+              <div class="config-group">
+                <label>Pattern Prezzo</label>
+                <input type="text" id="price-pattern" placeholder="Es: €\s*[\d,.]+">
+                <span class="config-hint">Lascia vuoto per auto-detect</span>
+              </div>
+              <div class="config-group">
+                <label>Separatore decimale</label>
+                <select id="decimal-sep">
+                  <option value="comma" selected>Virgola (1.234,56)</option>
+                  <option value="dot">Punto (1,234.56)</option>
+                </select>
+              </div>
+              <div class="config-group">
+                <label>
+                  <input type="checkbox" id="extract-images" checked> Estrai immagini prodotto
+                </label>
+              </div>
+              <button class="btn-primary" id="run-pdf-extract" disabled>Estrai Dati</button>
+            </div>
+          </div>
+
+          <div class="pdf-preview-panel">
+            <div class="panel-title">Anteprima & Risultati</div>
+            <div id="pdf-preview" class="pdf-preview">
+              <div class="empty-state">
+                <p>Carica un PDF per iniziare l'estrazione</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="pdf-results" class="pdf-results hidden">
+          <div class="results-header">
+            <h2>Articoli Estratti</h2>
+            <div class="results-actions">
+              <button class="btn-outline" id="pdf-export-json">Esporta JSON</button>
+              <button class="btn-outline" id="pdf-export-csv">Esporta CSV</button>
+              <button class="btn-primary" id="send-to-catalog">Invia al Catalogo</button>
+            </div>
+          </div>
+          <div id="extracted-grid" class="extracted-grid"></div>
+        </div>
+      </section>
+
+      <!-- VIEW: CATALOG -->
+      <section id="view-catalog" class="view">
+        <div class="view-header">
+          <h1>Catalogo Preventivi</h1>
+          <p class="subtitle">Gestisci il catalogo estratto e crea preventivi direttamente dall'app</p>
+        </div>
+
+        <div class="catalog-toolbar">
+          <div class="search-wrap">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="search-icon">
+              <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M11 11L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" id="catalog-search" placeholder="Cerca codice, descrizione...">
+          </div>
+          <div class="catalog-actions">
+            <button class="btn-outline" id="import-catalog">Importa JSON</button>
+            <button class="btn-primary" id="create-quote">Nuovo Preventivo</button>
+          </div>
+        </div>
+
+        <div id="catalog-grid" class="catalog-grid">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="6" width="32" height="36" rx="3" stroke="#00d4aa" stroke-width="1.5" opacity="0.5"/>
+              <line x1="15" y1="16" x2="33" y2="16" stroke="#00d4aa" stroke-width="1.5" opacity="0.4"/>
+              <line x1="15" y1="22" x2="33" y2="22" stroke="#00d4aa" stroke-width="1.5" opacity="0.3"/>
+              <line x1="15" y1="28" x2="25" y2="28" stroke="#00d4aa" stroke-width="1.5" opacity="0.2"/>
+            </svg>
+            <p>Nessun articolo nel catalogo</p>
+            <p class="sub">Estrai articoli da un PDF o importa un file JSON</p>
+          </div>
+        </div>
+
+        <div id="quote-panel" class="quote-panel hidden">
+          <div class="quote-header">
+            <h3>Preventivo</h3>
+            <div class="quote-meta">
+              <input type="text" id="quote-client" placeholder="Cliente">
+              <input type="text" id="quote-ref" placeholder="Riferimento">
+            </div>
+            <button class="btn-ghost" id="close-quote">Chiudi</button>
+          </div>
+          <div id="quote-items" class="quote-items"></div>
+          <div class="quote-footer">
+            <div class="quote-totals">
+              <span>Subtotale: <strong id="q-subtotal">€0,00</strong></span>
+              <span>IVA 22%: <strong id="q-iva">€0,00</strong></span>
+              <span class="total-line">Totale: <strong id="q-total">€0,00</strong></span>
+            </div>
+            <div class="quote-actions">
+              <button class="btn-outline" id="export-quote">Esporta PDF</button>
+              <button class="btn-primary" id="print-quote">Stampa</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

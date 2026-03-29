@@ -1,0 +1,15 @@
+{
+  "name": "DataCompare Pro",
+  "short_name": "DataCompare",
+  "description": "Confronta file Excel, CSV e PDF - rileva anomalie, estrai dati, crea preventivi",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ],
+  "categories": ["productivity", "business"],
+  "lang": "it",
+  "orientation": "any"
+}
