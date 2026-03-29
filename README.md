@@ -1,36 +1,55 @@
-# DataCompare Pro — PWA aggiornata
+# DataCompare Pro — PWA
 
-Versione corretta e resa più pulita per GitHub Pages.
+Applicazione PWA per confronto e analisi di file Excel, CSV e PDF.
 
-## Cosa è stato sistemato
-- struttura coerente con cartella `src/`
-- manifest aggiornato con icone PNG reali
-- service worker aggiornato
-- UI rifinita in stile dark minimal
-- aggiunta icona SVG + icone PNG 192/512
-- mantenuta logica di confronto, analisi PDF, catalogo e preventivi locali
+## Funzionalità
 
-## Struttura
+### Confronto File
+- Carica multipli file Excel (.xlsx, .xls), CSV e PDF contemporaneamente
+- Rileva automaticamente la colonna codice, descrizione e prezzo
+- Individua: duplicati di codice, prezzi difformi tra fonti, descrizioni conflittuali, codici mancanti
+- Filtra i risultati per tipo di anomalia
+- Esporta i risultati in CSV
+
+### Analisi PDF Listini
+- Carica PDF di listini figurativi
+- Configura pattern regex per codici articolo e prezzi
+- Estrai automaticamente: codice, descrizione, prezzo, immagine (rendering della pagina)
+- Modifica manualmente i dati estratti prima di salvarli
+- Esporta in JSON o CSV
+
+### Catalogo & Preventivi
+- Raccogli tutti gli articoli estratti in un catalogo centrale
+- Cerca per codice o descrizione
+- Importa/esporta catalogo in JSON o CSV
+- Crea preventivi con calcolo automatico IVA 22%
+- Esporta preventivi in CSV
+
+## Deploy su GitHub Pages
+
 ```
-datacompare-pro-fixed/
+# Struttura file
+datacompare/
 ├── index.html
 ├── manifest.json
 ├── icon.svg
-├── icon-192.png
-├── icon-512.png
 ├── sw.js
-├── README.md
-└── src/
-    ├── style.css
-    └── app.js
+├── src/
+│   ├── style.css
+│   └── app.js
+└── README.md
 ```
 
-## Deploy
-Pubblica la cartella così com'è nella root della repo GitHub Pages.
+1. Copia la cartella in un repository GitHub
+2. Attiva GitHub Pages dalla root del branch `main`
+3. L'app è installabile come PWA da browser mobile e desktop
 
+## Librerie usate (CDN — no build step)
+- **XLSX.js** — parsing Excel e CSV
+- **PDF.js** — rendering e estrazione testo da PDF
+- **pdf-lib** — manipolazione PDF
 
-## Fix v3
-- Le immagini estratte dal PDF ora vengono mantenute anche nel catalogo e nel preventivo.
-- Il drawer del preventivo mostra la miniatura articolo quando disponibile.
-- Export CSV del preventivo esteso con fonte e pagina PDF.
-- Cache Service Worker aggiornata per forzare refresh più affidabile.
+## Note tecniche
+- Zero build step
+- Funziona offline dopo prima visita (Service Worker)
+- Tutti i dati restano locali nel browser, nulla viene inviato a server
