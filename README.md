@@ -27,3 +27,10 @@ datacompare-pro-fixed/
 
 ## Deploy
 Pubblica la cartella così com'è nella root della repo GitHub Pages.
+
+
+## Fix v3
+- Le immagini estratte dal PDF ora vengono mantenute anche nel catalogo e nel preventivo.
+- Il drawer del preventivo mostra la miniatura articolo quando disponibile.
+- Export CSV del preventivo esteso con fonte e pagina PDF.
+- Cache Service Worker aggiornata per forzare refresh più affidabile.
